@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<!-- namespace必须指向Dao接口 -->
+<mapper namespace="com.zxt.helper.dao.UserMapper">
+
+    <resultMap id="userPlusResultMap" type="com.zxt.helper.entity.User">
+        <id column="id" property="id"/>
+        <result column="userName" property="userName"/>
+        <result column="iphone" property="iphone"/>
+        <result column="permissionId" property="permissionId"/>
+        <result column="password" property="password"/>
+        <result column="departmentId" property="departmentId"/>
+        <result column="isFreeze" property="isFreeze"/>
+        <result column="isDelete" property="isDelete"/>
+        <result column="creTime" property="creTime"/>
+        <result column="updTime" property="updTime"/>
+        <association property="permission" javaType="com.zxt.helper.entity.Permission">
+            <id column="id" property="id"/>
+            <result column="perName" property="perName"/>
+            <result column="perMark" property="perMark"/>
+            <result column="perLevel" property="perLevel"/>
+            <result column="isDetailsBtn" property="isDetailsBtn"/>
+            <result column="isConfirmBtn" property="isConfirmBtn"/>
+            <result column="isBackBtn" property="isBackBtn"/>
+            <result column="isPostBtn" property="isPostBtn"/>
+            <result column="isUpdateBtn" property="isUpdateBtn"/>
+            <result column="isDeleteBtn" property="isDeleteBtn"/>
+            <result column="isInsertBtn" property="isInsertBtn"/>
+            <result column="isReviewBtn" property="isReviewBtn"/>
+            <result column="creTime" property="creTime"/>
+            <result column="updTime" property="updTime"/>
+        </association>
+        <association property="dept" javaType="com.zxt.helper.entity.Dept">
+            <id column="id" property="id"/>
+            <result column="deptName" property="deptName"/>
+            <result column="deptCode" property="deptCode"/>
+            <result column="creTime" property="creTime"/>
+            <result column="updTime" property="updTime"/>
+            <result column="isDelete" property="isDelete"/>
+            <result column="levelDept" property="levelDept"/>
+        </association>
+    </resultMap>
+
+    <select id="login" resultType="map">
+       SELECT
+        u.`id`,u.`userName`,u.`iphone`,u.`permissionId`,
+        u.`password`,u.`departmentId`,u.`isFreeze`,u.`isDelete`,u.creTime,u.updTime,
+        p.`id`,p.`perName`,p.`perMark`,p.perLevel,p. isDetailsBtn,  p. isConfirmBtn, p. isBackBtn, p. isPostBtn, p. isUpdateBtn, p. isDeleteBtn,p. isInsertBtn, p.isReviewBtn,p.`creTime`,p.`updTime`,
+        d.id,d.deptName,d.deptCode,d.creTime,d.updTime,d.isDelete,d.levelDept
+        FROM
+        sys_user AS u
+        INNER  JOIN
+        sys_permission AS p
+        ON
+        u.permissionId = p.id
+        INNER JOIN
+         `sys_dept` AS d
+        ON
+        u.departmentId = d.id
+        WHERE
+         u.userName = #{userName}
+         AND
+         u.password = #{password}
+    </select>
+
+    <select id="selectUserDetails" resultMap="userPlusResultMap">
+       SELECT
+        u.`id`,u.`userName`,u.`iphone`,u.`permissionId`,
+        u.`password`,u.`departmentId`,u.`isFreeze`,u.`isDelete`,u.creTime,u.updTime,
+       p.`id`,p.`perName`,p.`perMark`,p.perLevel,p. isDetailsBtn,  p. isConfirmBtn, p. isBackBtn, p. isPostBtn, p. isUpdateBtn, p. isDeleteBtn,p. isInsertBtn, p.isReviewBtn,p.`creTime`,p.`updTime`,
+        d.id,d.deptName,d.deptCode,d.creTime,d.updTime,d.isDelete,d.levelDept
+        FROM
+        sys_user AS u
+        INNER  JOIN
+        sys_permission AS p
+        ON
+        u.permissionId = p.id
+        INNER JOIN
+         `sys_dept` AS d
+        ON
+        u.departmentId = d.id
+        WHERE
+         u.id = #{id}
+    </select>
+
+    <select id="updateById" parameterType="java.lang.String">
+                  UPDATE `sys_user`
+                  SET isDelete = 0
+                  WHERE id=#{id}
+    </select>
+
+    <select id="selectLimit"  resultMap="userPlusResultMap">
+        SELECT
+        u.`id`,u.`userName`,u.`iphone`,u.`permissionId`,
+        u.`password`,u.`departmentId`,u.`isFreeze`,u.`isDelete`,u.creTime,u.updTime,
+        p.`id`,p.`perName`,p.`perMark`,p.perLevel,p. isDetailsBtn,  p. isConfirmBtn, p. isBackBtn, p. isPostBtn, p. isUpdateBtn, p. isDeleteBtn,p. isInsertBtn, p.isReviewBtn,p.`creTime`,p.`updTime`,
+        d.id,d.deptName,d.deptCode,d.creTime,d.updTime,d.isDelete,d.levelDept
+        FROM
+        sys_user AS u
+        INNER  JOIN
+        sys_permission AS p
+        ON
+        u.permissionId = p.id
+        INNER JOIN
+        `sys_dept` AS d
+        ON
+        u.departmentId = d.id
+        WHERE 1=1
+        <if test="userName != null and userName != '' ">
+            AND  u.userName like #{userName}
+        </if>
+        <if test="perName != null  and perName != '' ">
+            AND  p.perName like #{perName}
+        </if>
+        <if test="deptName != null and deptName != '' ">
+            AND  d.deptName like #{deptName}
+        </if>
+        <if test="startTime != null and startTime != '' and endTime != null  and endTime != '' ">
+            AND   u.creTime BETWEEN #{startTime} AND #{endTime}
+        </if>
+        AND u.isDelete = 1
+        AND u.isFreeze = 1
+        LIMIT #{currentPage},#{pageSize}
+    </select>
+
+</mapper>

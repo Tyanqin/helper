@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<!-- namespace必须指向Dao接口 -->
+<mapper namespace="com.zxt.helper.dao.SupervisionRulesMapper">
+
+    <select id="getList" resultType="java.util.HashMap">
+          SELECT rule.ruleName,stage.staName,rule.ruleTitle,rule.ruleTheme,rule.keyPoint
+          FROM `pro_stage` AS stage
+          RIGHT JOIN `supervision_rule` AS rule
+          ON stage.`staName` = rule.`staName`
+         AND stage.`isDelete` = '1'
+        AND rule.`isDelete` = '1'
+
+    </select>
+
+
+    <!--分页-->
+    <select id="page" resultType="java.util.HashMap">
+        SELECT rule.detailId,rule.ruleName,stage.staName,rule.ruleTitle,rule.ruleTheme,rule.keyPoint,
+        rule.creTime AS creTime,
+        rule.updTime AS  updTime
+        FROM `pro_stage` AS stage
+        RIGHT JOIN `supervision_rule` AS rule
+        ON stage.`staName` = rule.`staName`
+        WHERE  1=1
+        <if test="ruleName != null and ruleName != '' ">
+            AND  rule.ruleName = #{ruleName}
+        </if>
+        <if test="staName != null and staName != '' ">
+            AND  rule.staName = #{staName}
+        </if>
+        <if test="ruleTitle != null and ruleTitle != '' ">
+            AND  rule.ruleTitle like CONCAT('%',#{ruleTitle},'%')
+        </if>
+        <if test="startTime != null and startTime != '' and endTime != null  and endTime != '' ">
+            AND   rule.creTime BETWEEN #{startTime} AND #{endTime}
+        </if>
+        AND stage.`isDelete` = '1'
+        AND rule.`isDelete` = '1'
+       ORDER BY  creTime DESC
+    </select>
+
+<!--    查询细则名称   去重-->
+    <select id="distinctRuleName" resultType="String">
+         SELECT DISTINCT(ruleName) FROM `supervision_rule`
+    </select>
+
+
+    <!--    查询细则名称   去重-->
+    <update id="deleteById" >
+         UPDATE `supervision_rule` SET isDelete = '0'   WHERE detailId = #{detailId}
+    </update>
+
+
+
+</mapper>

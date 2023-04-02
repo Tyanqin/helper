@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<!-- namespace必须指向Dao接口 -->
+<mapper namespace="com.zxt.helper.dao.RegulationMapper">
+
+    <!--分页-->
+    <select id="page" resultType="java.util.HashMap">
+        SELECT ruRegId ,regName,resName,fileName,pageNumber,ruRegUrl, creTime ,isDelete
+        FROM `rules_regulation`  AS rule
+        WHERE  1=1
+        <if test="regName != null and regName != '' ">
+            AND  rule.regName = #{regName}
+        </if>
+        <if test="resName != null and resName != '' ">
+            AND  rule.resName like CONCAT('%',#{resName},'%')
+        </if>
+        AND rule.`isDelete` = '1'
+        ORDER BY  creTime DESC
+    </select>
+
+    <!--    查询规章名称   去重-->
+    <select id="distinctRegName" resultType="String">
+         SELECT DISTINCT(regName) FROM `rules_regulation`
+    </select>
+
+    <!--    根据ID修改-->
+    <update id="deleteById" >
+         UPDATE `rules_regulation` SET isDelete = '0'   WHERE ruRegId = #{ruRegId}
+    </update>
+
+</mapper>
